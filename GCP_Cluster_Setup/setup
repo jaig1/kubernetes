@@ -1,1 +1,30 @@
-# kubernetes
+gcloud config set project <project_id > ( E.g atcisco-193922)
+
+gcloud config set compute/zone  <zone > (E.g us-central1-a )
+
+gcloud container clusters create CLUSTER_NAME ( E.g. accelerators )
+
+gcloud container clusters get-credentials <clustername> ( E.g. accelerator)
+
+//Elevate the default user privileges to cluster admin
+kubectl create clusterrolebinding cluster-admin-binding \
+--clusterrole cluster-admin --user njganeshv@gmail.com
+
+//Validate the cluster setup by deploying a sample application
+kubectl run hello-server --image gcr.io/google-samples/hello-app:1.0 --port 8080
+
+//Expose the deployed application..note load balancer capabilities are auto configured
+kubectl expose deployment hello-server --type LoadBalancer \
+  --port 80 --target-port 8080
+  
+kubectl get service hello-server
+
+http://EXTERNAL_IP/
+
+//Clean up
+
+//Delete the deployed application
+kubectl delete service hello-server
+
+//Delete the cluster
+gcloud container clusters delete CLUSTER_NAME
