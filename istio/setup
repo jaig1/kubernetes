@@ -1,0 +1,41 @@
+
+https://istio.io/docs/setup/kubernetes/quick-start/#download-and-prepare-for-the-installation
+
+curl -L https://git.io/getLatestIstio | sh -
+
+//add ictioclt to path
+add PATH="$PATH:/home/njganeshv/istio-0.8.0/bin" to ~/.profile
+
+//have the change to profile reflected 
+source ~/.profile
+
+kubectl create clusterrolebinding cluster-admin-binding1  --clusterrole=cluster-admin  --user=system:serviceaccount:kube-system:default
+
+helm install install/kubernetes/helm/istio --name istio --namespace istio-system --set sidecarInjectorWebhook.enabled=false \
+--set tracing.enabled=true
+
+//Deploy the sample 'bookinfo' app
+kubectl create -f <(istioctl kube-inject -f samples/bookinfo/kube/bookinfo.yaml)
+//Create the default route in Istio for the 'bookinfo' app
+istioctl create -f samples/bookinfo/routing/bookinfo-gateway.yaml
+
+//To access the 'bookinfo' app, get the external IP/Port of Istio-ingressgateway service
+kubectl -n istio-system describe services istio-ingressgateway
+
+//Access the 'bookinfo' app through the istio ingress gateway
+http://<externalIP>:externalport>/productpage
+
+//To access the opentracing console, get the external IP/Port of 'tracing' service
+kubectl -n istio-system describe services tracing
+
+//Access the Jaeger UI for traving info
+http://<externalIP>:externalport>/search
+
+//Deoloy Grafana
+kubectl -n istio-system apply -f install/kubernetes/addons/grafana.yaml
+
+//To access Garfana console, get the external IP/Port of 'grafana' service
+kubectl -n istio-system describe service grafana
+
+//Access the Grafana Dashboard
+http://<externalIP>:externalport>//dashboard/db/istio-dashboard 
