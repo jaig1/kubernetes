@@ -18,3 +18,7 @@ $ helm init --service-account tiller
 
 //Get the CHART
 git clone https://github.com/kubernetes/charts.git
+
+helm repo list
+
+helm repo update
