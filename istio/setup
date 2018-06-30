@@ -42,3 +42,22 @@ kubectl -n istio-system describe service grafana
 
 //Access the Grafana Dashboard
 http://<externalIP>:externalport>//dashboard/db/istio-dashboard 
+
+//Deploy logging stack fluentd-elastic-kibana
+kubectl apply -f logging-stack.yaml
+
+//wireup istio to logging-stack
+istioctl create -f fluentd-istio.yaml
+
+kubectl -n logging delete service kibana
+kubectl -n logging expose deployment kibana --type=LoadBalancer
+kubectl -n logging describe service kibana
+
+Navigate to the Kibana UI and click the “Set up index patterns” in the top right.
+
+Use * as the index pattern, and click “Next step.”.
+
+Select @timestamp as the Time Filter field name, and click “Create index pattern.”
+
+Now click “Discover” on the left menu, and start exploring the logs generated
+
