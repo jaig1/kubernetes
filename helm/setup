@@ -15,3 +15,6 @@ clusterrolebinding "tiller" created
 
 //Initite helm with the service account tiller
 $ helm init --service-account tiller
+
+//Get the CHART
+git clone https://github.com/kubernetes/charts.git
