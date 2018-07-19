@@ -1,5 +1,22 @@
 //Run this from a Ubuntu VM on GCP
 
+//Install GCLOUD SDK and the 
+export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+sudo apt-get update && sudo apt-get install google-cloud-sdk
+sudo apt-get install kubectl
+
+//Initialize GCLOUD SDK
+gcloud init
+gcloud config set account njganeshv@gmail.com
+gcloud config set project atcisco-193922
+gcloud config set compute/zone us-central1-a
+
+//Get the Crdendtials for KUBCTL to connect and work with Kubenetes Cluster
+gcloud container clusters get-credentials spinnakerdemo --zone us-central1-a --project atcisco-193922
+
+
 //Install Halyard
 mkdir halyard
 cd halyard
