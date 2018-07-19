@@ -10,11 +10,20 @@ kubectl create -f dashboard-admin-user.yaml
 kubectl -n kube-system get secret | grep admin-user
 kubectl -n kube-system describe secret admin-user-token-<id displayed by previous command>
 
+//Delete the exising Kubernetes Dashboard services, as it is exposed on a cluster IP and not acessible from outside the cluster
+kubectl -n kube-system delete svc kubernetes-dashboard
+
+//Recreate the Kunernetes dashboard Services, exposed on a Load Balancer
+kubectl -n kube-system expose deployment kubernetes-dashboard --type LoadBalancer  --port 443 --target-port 8443
+
+
 //To get the external ip and port, for accesing the deployed Dashboard
 kubectl -n kube-system describe services kubernetes-dashboard
+//or
+kubectl -n kube-system get services
 
 //Login to the Dashoard, using the token retrived earlier.
-https://<externalIP>:<port>/#!/login
+https://<externalIP>/#!/login
 
 //Additional, if using NodePort to access Dashboard
 
