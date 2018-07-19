@@ -1,0 +1,47 @@
+//Run this from a Ubuntu VM on GCP
+
+//Install Halyard
+mkdir halyard
+cd halyard
+curl -O https://raw.githubusercontent.com/spinnaker/halyard/master/install/debian/InstallHalyard.sh
+sudo bash InstallHalyard.sh
+hal -v
+
+//Create the Spinnaker Namespace, to create the kube account for spinnaker and enable cluster priviliges
+kubectl create namespace spinnaker
+vi spinacct.yaml
+kubectl create -f spinacct.yaml
+vi spinsvs.yaml
+kubectl -n spinnaker create -f spinsvs.yaml
+
+//Enable Storage settings for Halyard
+SERVICE_ACCOUNT_NAME=spinnaker-gcs-account
+SERVICE_ACCOUNT_DEST=~/.gcp/gcs-account.json
+gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME  --display-name $SERVICE_ACCOUNT_NAME
+SA_EMAIL=$(gcloud iam service-accounts list --filter="displayName:$SERVICE_ACCOUNT_NAME" --format='value(email)')
+PROJECT=$(gcloud info --format='value(config.project)')
+gcloud projects add-iam-policy-binding $PROJECT --role roles/storage.admin --member serviceAccount:$SA_EMAIL
+mkdir -p $(dirname $SERVICE_ACCOUNT_DEST)
+gcloud iam service-accounts keys create $SERVICE_ACCOUNT_DEST --iam-account $SA_EMAIL
+BUCKET_LOCATION=us
+hal config storage gcs edit --project $PROJECT --bucket-location $BUCKET_LOCATION --json-path $SERVICE_ACCOUNT_DEST
+hal config storage edit --type gcs
+
+//Set the Docker Configration for Halyard
+ADDRESS=index.docker.io \
+REPOSITORIES=jaig/spinnaker-node-demo \
+USER=jaig
+hal config provider docker-registry enable
+hal config provider docker-registry account add jaig-docker-registry --address $ADDRESS  --repositories $REPOSITORIES --username $USER --password
+
+//Set the Kubernetes settings for Halyard
+hal config provider kubernetes enable
+hal config provider kubernetes account add spinnaker-service-account --docker-registries jaig-docker-registry --context gke_atcisco-193922_us-central1-a_spinnakerdemo
+hal config version edit --version 1.8.0
+hal config deploy edit --type distributed --account-name spinnaker-service-account
+
+//Get the expernal IP details for the spinnaker services running on port 9000 and 8084
+kubectl get svc -n spinnaker
+hal config security ui edit --override-base-url http://<external_ip>:9000
+hal config security api edit --override-base-url http://<external_ip>:8084
+hal deploy apply
