@@ -9,7 +9,7 @@ tar -zxvf helm-v2.0.0-linux-amd64.tgz
 mv linux-amd64/helm /usr/local/bin/helm
 
 //Create the service account tiller and assign it cluster admin privileges
-$ kubectl create -f rbac-config.yaml
+$ kubectl create -f helm-cluster-admin.yaml
 serviceaccount "tiller" created
 clusterrolebinding "tiller" created
 
