@@ -14,6 +14,7 @@ source ~/.profile
 //create 'default' service account in 'istio-system' namespace and assign admin privileges
 kubectl create clusterrolebinding cluster-admin-binding1  --clusterrole=cluster-admin  --user=system:serviceaccount:kube-system:default
 
+//Move to Istio directory, for executing this command
 helm install install/kubernetes/helm/istio --name istio --namespace istio-system --set sidecarInjectorWebhook.enabled=false \
 --set tracing.enabled=true
 
