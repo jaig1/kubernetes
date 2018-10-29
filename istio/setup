@@ -41,6 +41,10 @@ kubectl -n istio-system apply -f install/kubernetes/addons/grafana.yaml
 //To access Garfana console, get the external IP/Port of 'grafana' service
 kubectl -n istio-system describe service grafana
 
+kubectl -n istio-system delete service grafana
+kubectl -n istio-system expose deployment kibana --type=LoadBalancer
+kubectl -n istio-system describe service grafana
+
 //Access the Grafana Dashboard
 http://<externalIP>:externalport>//dashboard/db/istio-dashboard 
 
